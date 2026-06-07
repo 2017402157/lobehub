@@ -438,7 +438,7 @@ table agent_skills {
 
 table ai_models {
   id varchar(150) [not null]
-  "_id" uuid [default: `gen_random_uuid()`]
+  "_id" uuid [pk, not null, default: `gen_random_uuid()`]
   display_name varchar(200)
   description text
   organization varchar(100)
@@ -461,7 +461,8 @@ table ai_models {
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
-    (id, provider_id, user_id) [pk]
+    (id, provider_id, user_id) [name: 'ai_models_id_provider_id_user_id_unique', unique]
+    (id, provider_id, user_id, workspace_id) [name: 'ai_models_id_provider_id_user_id_workspace_id_unique', unique]
     user_id [name: 'ai_models_user_id_idx']
     workspace_id [name: 'ai_models_workspace_id_idx']
   }
@@ -470,7 +471,7 @@ table ai_models {
 table ai_providers {
   id varchar(64) [not null]
   name text
-  "_id" uuid [default: `gen_random_uuid()`]
+  "_id" uuid [pk, not null, default: `gen_random_uuid()`]
   user_id text [not null]
   sort integer
   enabled boolean
@@ -488,7 +489,8 @@ table ai_providers {
   updated_at "timestamp with time zone" [not null, default: `now()`]
 
   indexes {
-    (id, user_id) [pk]
+    (id, user_id) [name: 'ai_providers_id_user_id_unique', unique]
+    (id, user_id, workspace_id) [name: 'ai_providers_id_user_id_workspace_id_unique', unique]
     user_id [name: 'ai_providers_user_id_idx']
     workspace_id [name: 'ai_providers_workspace_id_idx']
   }
