@@ -1,25 +1,24 @@
-import type { DeviceExecutionTarget, LobeAgentAgencyConfig, RuntimeEnvMode } from '@lobechat/types';
+import type { HeteroExecutionTarget, LobeAgentAgencyConfig, RuntimeEnvMode } from '@lobechat/types';
 
 /**
  * Single source of truth for where an agent executes. Replaces the old
  * per-platform `chatConfig.runtimeEnv.runtimeMode` record — one global
  * `agencyConfig.executionTarget` drives both desktop and web.
  *
- * - `none`    → 无设备 (no execution environment; plain chat)
  * - `local`   → 本机 (this machine, in-process; desktop only)
  * - `sandbox` → 云端沙箱 (server cloud sandbox)
  * - `device`  → 远程设备 (dispatched to `boundDeviceId`)
  *
- * Defaults: desktop → `local`, web → `none`. On web `local` isn't available
+ * Defaults: desktop → `local`, web → `sandbox`. On web `local` isn't available
  * (no local filesystem), so a stored `local` (synced from desktop) resolves to
  * `sandbox`.
  */
 export const resolveExecutionTarget = (
   agencyConfig: LobeAgentAgencyConfig | undefined,
   isDesktop: boolean,
-): DeviceExecutionTarget => {
+): HeteroExecutionTarget => {
   const stored = agencyConfig?.executionTarget;
-  const effective = stored ?? (isDesktop ? 'local' : 'none');
+  const effective = stored ?? (isDesktop ? 'local' : 'sandbox');
   if (!isDesktop && effective === 'local') return 'sandbox';
   return effective;
 };
@@ -27,11 +26,9 @@ export const resolveExecutionTarget = (
 /**
  * Derive the legacy `runtimeMode` (still used by the server tool gate) from the
  * unified execution target: `local` → local-system tools, `sandbox` → cloud
- * sandbox, `device` → gateway-dispatched tools, `none` → no run tools (plain
- * chat). `device`/`none` both gate to `'none'` — device tools are routed
- * separately via `executionTarget === 'device'` + `boundDeviceId`.
+ * sandbox, `device` → gateway-dispatched tools.
  */
-export const executionTargetToRuntimeMode = (target: DeviceExecutionTarget): RuntimeEnvMode => {
+export const executionTargetToRuntimeMode = (target: HeteroExecutionTarget): RuntimeEnvMode => {
   switch (target) {
     case 'local': {
       return 'local';
