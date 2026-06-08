@@ -22,6 +22,7 @@ import { Fragment, memo, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import NeuralNetworkLoading from '@/components/NeuralNetworkLoading';
+
 import { useLocalStorageState } from '@/hooks/useLocalStorageState';
 import { useFetchGitInfo } from '@/store/device';
 
